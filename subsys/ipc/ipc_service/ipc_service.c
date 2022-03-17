@@ -81,3 +81,19 @@ int ipc_service_send(struct ipc_ept *ept, const void *data, size_t len)
 
 	return backend->send(ept->instance, ept->token, data, len);
 }
+
+#if DT_HAS_CHOSEN(zephyr_ipc_shm)
+#define SHM_NODE            DT_CHOSEN(zephyr_ipc_shm)
+#define SHM_BASE_ADDRESS    DT_REG_ADDR(SHM_NODE)
+#define SHM_SIZE            DT_REG_SIZE(SHM_NODE)
+#endif
+
+#if IS_ENABLED(CONFIG_SOC_NRF5340_CPUAPP)
+int clear_reset_region(const struct device *arg)
+{
+	memset((void *) SHM_BASE_ADDRESS, 0, SHM_SIZE);
+
+	return 0;
+}
+SYS_INIT(clear_reset_region, PRE_KERNEL_1, 1);
+#endif
