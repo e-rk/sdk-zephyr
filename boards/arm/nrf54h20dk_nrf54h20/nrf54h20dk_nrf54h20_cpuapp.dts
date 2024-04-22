@@ -195,6 +195,7 @@
 	cs-gpios = <&gpio6 3 GPIO_ACTIVE_LOW>;
 	pinctrl-0 = <&exmif_default>;
 	pinctrl-names = "default";
+	max-xfer-size = <16>;
 
 	mx25uw63: mx25uw6345g@0 {
 		compatible = "jedec,spi-nor";
