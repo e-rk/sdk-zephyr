@@ -69,7 +69,7 @@ static uint32_t aux_reg_read(uint8_t size, mm_reg_t addr, uint32_t off)
 	ARG_UNUSED(size);
 	return sys_in32(addr + off/4);
 }
-#error test
+
 static void aux_reg_write(uint8_t size, uint32_t data, mm_reg_t addr, uint32_t off)
 {
 	ARG_UNUSED(size);
@@ -179,14 +179,14 @@ static int reg_test_bit(uint8_t bit, mm_reg_t addr, uint32_t off)
 /* Common registers settings, bits etc... */
 
 /* CTRLR0 settings */
-#if 0
+#if !IS_ENABLED(CONFIG_SPI_DW_HSSI)
 #define DW_SPI_CTRLR0_SCPH_BIT		(6)
 #define DW_SPI_CTRLR0_SCPOL_BIT		(7)
 #define DW_SPI_CTRLR0_TMOD_SHIFT	(8)
 #define DW_SPI_CTRLR0_SLV_OE_BIT	(10)
 #define DW_SPI_CTRLR0_SRL_BIT		(11)
 #else
-/* Bit fields in CTRLR0 (DWC SSI with AHB interface) */
+/* The register layout is different in the HSSI variant */
 #define DW_SPI_CTRLR0_SCPH_BIT		8
 #define DW_SPI_CTRLR0_SCPOL_BIT		9
 #define DW_SPI_CTRLR0_TMOD_SHIFT	10
