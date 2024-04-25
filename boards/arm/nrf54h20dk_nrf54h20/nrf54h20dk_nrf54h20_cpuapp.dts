@@ -186,18 +186,13 @@
 	};
 };
 
-&gpio6 {
-	status = "okay";
-};
-
 &exmif {
-	status = "okay";
 	cs-gpios = <&gpio6 3 GPIO_ACTIVE_LOW>;
 	pinctrl-0 = <&exmif_default>;
 	pinctrl-names = "default";
 	mx25uw63: mx25uw6345g@0 {
 		compatible = "jedec,spi-nor";
-		status = "okay";
+		status = "disabled";
 		reg = <0>;
 		spi-max-frequency = <DT_FREQ_M(48)>;
 		jedec-id = [c2 84 37];
