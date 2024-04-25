@@ -10,7 +10,7 @@
 
 /* spi_dw.c - Designware SPI driver implementation */
 
-#define LOG_LEVEL LOG_LEVEL_DBG
+#define LOG_LEVEL CONFIG_SPI_LOG_LEVEL
 #include <zephyr/logging/log.h>
 LOG_MODULE_REGISTER(spi_dw);
 
