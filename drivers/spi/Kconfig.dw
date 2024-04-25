@@ -4,6 +4,8 @@
 # Copyright (c) 2023 Meta Platforms
 # SPDX-License-Identifier: Apache-2.0
 
+DT_COMPAT_NORDIC_NRF_EXMIF := nordic,nrf-exmif
+
 menuconfig SPI_DW
 	bool "Designware SPI controller driver"
 	default y
@@ -19,5 +21,12 @@ config SPI_DW_ACCESS_WORD_ONLY
 	  In some case, e.g. ARC HS Development kit, the peripheral space of
 	  DesignWare SPI only allows word access, byte access will raise
 	  exception.
+
+config SPI_DW_HSSI
+	bool "Designware SPI HSSI variant"
+	default y if $(dt_has_compat,$(DT_COMPAT_NORDIC_NRF_EXMIF))
+	help
+	  Use register layout compatible with the SPI DW HSSI variant of the
+	  peripheral.
 
 endif # SPI_DW
