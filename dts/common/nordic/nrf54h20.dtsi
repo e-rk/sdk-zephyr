@@ -913,6 +913,7 @@
 				interrupts = <149 NRF_DEFAULT_IRQ_PRIORITY>;
 				clock-frequency = <DT_FREQ_M(400)>;
 				fifo-depth = <32>;
+				max-xfer-size = <16>;
 				status = "disabled";
 			};
 		};

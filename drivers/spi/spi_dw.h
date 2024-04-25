@@ -21,7 +21,6 @@ extern "C" {
 #endif
 
 typedef void (*spi_dw_config_t)(void);
-typedef void (*spi_dw_irq_ack_t)(void);
 typedef uint32_t (*spi_dw_read_t)(uint8_t size, mm_reg_t addr, uint32_t off);
 typedef void (*spi_dw_write_t)(uint8_t size, uint32_t data, mm_reg_t addr, uint32_t off);
 typedef void (*spi_dw_set_bit_t)(uint8_t bit, mm_reg_t addr, uint32_t off);
@@ -44,7 +43,6 @@ struct spi_dw_config {
 	spi_dw_set_bit_t set_bit_func;
 	spi_dw_clear_bit_t clear_bit_func;
 	spi_dw_test_bit_t test_bit_func;
-	spi_dw_irq_ack_t irq_ack_func;
 };
 
 struct spi_dw_data {
@@ -71,7 +69,7 @@ static uint32_t aux_reg_read(uint8_t size, mm_reg_t addr, uint32_t off)
 	ARG_UNUSED(size);
 	return sys_in32(addr + off/4);
 }
-
+#error test
 static void aux_reg_write(uint8_t size, uint32_t data, mm_reg_t addr, uint32_t off)
 {
 	ARG_UNUSED(size);
