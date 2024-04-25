@@ -268,6 +268,7 @@ static int spi_dw_configure(const struct device *dev,
 		LOG_DBG("Write baudr");
 		write_baudr(dev, SPI_DW_CLK_DIVIDER(info->clock_frequency,
 						    config->frequency));
+		write_ser(dev, BIT(config->slave));
 	}
 
 	if (spi_dw_is_slave(spi)) {
