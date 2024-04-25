@@ -519,18 +519,12 @@ static int spi_dw_release(const struct device *dev,
 
 void spi_dw_isr(const struct device *dev)
 {
-	// const struct spi_dw_config *info = dev->config;
 	uint32_t int_status;
 	int error;
 
-	// if (info->irq_ack_func) {
-	// 	info->irq_ack_func();
-	// }
-
+#ifdef CONFIG_HAS_NRFX
 	NRF_EXMIF->EVENTS_CORE = 0;
-
-	// volatile int wait = 1;
-	// while(wait);
+#endif
 
 	int_status = read_isr(dev);
 
@@ -577,14 +571,12 @@ int spi_dw_init(const struct device *dev)
 
 	DEVICE_MMIO_MAP(dev, K_MEM_CACHE_NONE);
 
-	k_usleep(1000);
-
+#ifdef CONFIG_HAS_NRFX
 	NRF_EXMIF->INTENSET = BIT(0);
 	NRF_EXMIF->TASKS_START = 1;
+#endif
 
 	info->config_func();
-
-	k_usleep(1000);
 
 	/* Masking interrupt and making sure controller is disabled */
 	write_imr(dev, DW_SPI_IMR_MASK);
@@ -602,42 +594,10 @@ int spi_dw_init(const struct device *dev)
 	return 0;
 }
 
-#if DT_NODE_HAS_COMPAT(DT_DRV_INST(inst), nordic_nrf_exmif)
-#error test
-#endif
-
 #define REG_ADDR(inst) \
-	COND_CODE_1(DT_INST_REG_HAS_IDX(inst, 1), \
-		    (DT_INST_REG_ADDR_BY_NAME(inst, core)), \
-		    (DT_INST_REG_ADDR(inst)))
-
-#define IS_HSSI(inst) \
 	COND_CODE_1(DT_NODE_HAS_COMPAT(DT_DRV_INST(inst), nordic_nrf_exmif), \
-		(true), \
-		(false))
-
-#define EXTRA_CONFIG(inst) \
-	COND_CODE_1(DT_NODE_HAS_COMPAT(DT_DRV_INST(inst), nordic_nrf_exmif), \
-		(NRF_EXMIF->INTENSET = BIT(0); \
-		 NRF_EXMIF->TASKS_START = 1;), \
-		())
-
-// #define EXTRA_CONFIG(inst) \
-// 		NRF_EXMIF->INTENSET = BIT(0); \
-// 		NRF_EXMIF->TASKS_START = 1;
-
-#define IRQ_ACK_DEFINE(inst) \
-	COND_CODE_1(DT_NODE_HAS_COMPAT(DT_DRV_INST(inst), nordic_nrf_exmif), \
-		(static void irq_ack_##inst(void) \
-		 { NRF_EXMIF->EVENTS_CORE = 0; }), \
-		())
-
-#define IRQ_ACK(inst) \
-	COND_CODE_1(DT_NODE_HAS_COMPAT(DT_DRV_INST(inst), nordic_nrf_exmif), \
-		    (irq_ack_##inst), \
-		    (NULL))
-
-// IRQ_ACK_DEFINE(0);
+		    (Z_DEVICE_MMIO_NAMED_ROM_INITIALIZER(core, DT_DRV_INST(inst))), \
+		    (DEVICE_MMIO_ROM_INIT(DT_DRV_INST(inst))))
 
 #define SPI_CFG_IRQS_SINGLE_ERR_LINE(inst)					\
 		IRQ_CONNECT(DT_INST_IRQ_BY_NAME(inst, rx_avail, irq),		\
@@ -711,7 +671,7 @@ COND_CODE_1(IS_EQ(DT_NUM_IRQS(DT_DRV_INST(inst)), 1),              \
 		SPI_CONTEXT_CS_GPIOS_INITIALIZE(DT_DRV_INST(inst), ctx)                     \
 	};                                                                                  \
 	static const struct spi_dw_config spi_dw_config_##inst = {                          \
-		DEVICE_MMIO_ROM_INIT(DT_DRV_INST(inst)),                                    \
+		REG_ADDR(inst),                                                             \
 		.clock_frequency = COND_CODE_1(                                             \
 			DT_NODE_HAS_PROP(DT_INST_PHANDLE(inst, clocks), clock_frequency),   \
 			(DT_INST_PROP_BY_PHANDLE(inst, clocks, clock_frequency)),           \
