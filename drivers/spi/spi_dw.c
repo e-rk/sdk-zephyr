@@ -78,7 +78,6 @@ out:
 		if (spi_cs_is_gpio(ctx->config)) {
 			spi_context_cs_control(ctx, false);
 		} else {
-			LOG_DBG("Write ser: 0");
 			write_ser(dev, 0);
 		}
 	}
@@ -136,7 +135,6 @@ static void push_data(const struct device *dev)
 			break;
 		}
 
-		LOG_DBG("Write dr: %x", data);
 		write_dr(dev, data);
 
 		spi_context_update_tx(&spi->ctx, spi->dfs, 1);
@@ -147,7 +145,6 @@ static void push_data(const struct device *dev)
 
 	if (!spi_context_tx_on(&spi->ctx)) {
 		/* prevents any further interrupts demanding TX fifo fill */
-		LOG_DBG("Write txftlr: 0");
 		write_txftlr(dev, 0);
 	}
 }
@@ -179,10 +176,8 @@ static void pull_data(const struct device *dev)
 	}
 
 	if (!spi->ctx.rx_len && spi->ctx.tx_len < info->fifo_depth) {
-		LOG_DBG("Write rxftlr: %x", spi->ctx.tx_len - 1);
 		write_rxftlr(dev, spi->ctx.tx_len - 1);
 	} else if (read_rxftlr(dev) >= spi->ctx.rx_len) {
-		LOG_DBG("Write rxftlr: %x", spi->ctx.rx_len - 1);
 		write_rxftlr(dev, spi->ctx.rx_len - 1);
 	}
 }
@@ -257,7 +252,6 @@ static int spi_dw_configure(const struct device *dev,
 	}
 
 	/* Installing the configuration */
-	LOG_DBG("Write ctrlr0 cfg: %x", ctrlr0);
 	write_ctrlr0(dev, ctrlr0);
 
 	/* At this point, it's mandatory to set this on the context! */
@@ -265,7 +259,6 @@ static int spi_dw_configure(const struct device *dev,
 
 	if (!spi_dw_is_slave(spi)) {
 		/* Baud rate and Slave select, for master only */
-		LOG_DBG("Write baudr");
 		write_baudr(dev, SPI_DW_CLK_DIVIDER(info->clock_frequency,
 						    config->frequency));
 		write_ser(dev, BIT(config->slave));
@@ -371,11 +364,9 @@ static int transceive(const struct device *dev,
 	}
 
 	if (!rx_bufs || !rx_bufs->buffers) {
-		// tmod = DW_SPI_CTRLR0_TMOD_TX;
-		LOG_DBG("TX mode only");
+		tmod = DW_SPI_CTRLR0_TMOD_TX;
 	} else if (!tx_bufs || !tx_bufs->buffers) {
-		LOG_DBG("RX mode only");
-		// tmod = DW_SPI_CTRLR0_TMOD_RX;
+		tmod = DW_SPI_CTRLR0_TMOD_RX;
 	}
 
 	/* ToDo: add a way to determine EEPROM mode */
@@ -390,10 +381,8 @@ static int transceive(const struct device *dev,
 			goto out;
 		}
 
-		LOG_DBG("Write ctrlr1: %u", reg_data);
 		write_ctrlr1(dev, reg_data);
 	} else {
-		LOG_DBG("Write ctrlr1: 0");
 		write_ctrlr1(dev, 0);
 	}
 
@@ -408,13 +397,9 @@ static int transceive(const struct device *dev,
 
 	/* Updating TMOD in CTRLR0 register */
 	reg_data = read_ctrlr0(dev);
-	LOG_DBG("Write ctrlr0: %x", reg_data);
 	reg_data &= ~DW_SPI_CTRLR0_TMOD_RESET;
-	LOG_DBG("Write ctrlr0: %x", reg_data);
 	reg_data |= tmod;
-	LOG_DBG("Write tmod: %x", tmod);
 
-	LOG_DBG("Write ctrlr0: %x", reg_data);
 	write_ctrlr0(dev, reg_data);
 
 	/* Set buffers info */
@@ -440,14 +425,12 @@ static int transceive(const struct device *dev,
 	}
 
 	/* Rx Threshold */
-	LOG_DBG("Write rxftlr: %u", reg_data);
 	write_rxftlr(dev, reg_data);
 
 	/* Enable interrupts */
 	reg_data = !rx_bufs ?
 		DW_SPI_IMR_UNMASK & DW_SPI_IMR_MASK_RX :
 		DW_SPI_IMR_UNMASK;
-	LOG_DBG("Write IMR: %x", reg_data);
 	write_imr(dev, reg_data);
 
 	if (!spi_dw_is_slave(spi)) {
@@ -455,7 +438,6 @@ static int transceive(const struct device *dev,
 		if (spi_cs_is_gpio(config)) {
 			spi_context_cs_control(&spi->ctx, true);
 		} else {
-			LOG_DBG("Write ser");
 			write_ser(dev, BIT(config->slave));
 		}
 	}
