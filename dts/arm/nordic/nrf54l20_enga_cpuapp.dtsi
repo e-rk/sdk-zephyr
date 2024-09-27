@@ -12,6 +12,7 @@ nvic: &cpuapp_nvic {};
 
 / {
 	chosen {
+		zephyr,bt-hci = &bt_hci_sdc;
 		zephyr,entropy = &prng;
 	};
 
@@ -30,6 +31,10 @@ nvic: &cpuapp_nvic {};
 		compatible = "nordic,entropy-prng";
 		status = "okay";
 	};
+};
+
+&bt_hci_sdc {
+	status = "okay";
 };
 
 &cpuapp_ppb {
