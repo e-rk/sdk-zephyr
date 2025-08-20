@@ -26,7 +26,11 @@ void nrf_802154_clock_init(void)
 	uint32_t clock_latency_us = 1400;
 #endif
 
+	(void)clock_latency_us;
+
+#if !IS_ENABLED(CONFIG_NRF_802154_SL_OPENSOURCE)
 	nrf_802154_clock_hfclk_latency_set(clock_latency_us);
+#endif
 }
 
 void nrf_802154_clock_deinit(void)
