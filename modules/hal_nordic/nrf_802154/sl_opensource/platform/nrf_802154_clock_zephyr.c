@@ -14,6 +14,8 @@
 #include <zephyr/drivers/clock_control/nrf_clock_control.h>
 #include <nrf_sys_event.h>
 
+extern void nrf_802154_clock_hfclk_latency_set(uint32_t latency_us);
+
 static bool hfclk_is_running;
 
 void nrf_802154_clock_init(void)
