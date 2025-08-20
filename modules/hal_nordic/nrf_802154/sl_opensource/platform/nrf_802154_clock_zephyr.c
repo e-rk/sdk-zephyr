@@ -20,7 +20,11 @@ static bool hfclk_is_running;
 
 void nrf_802154_clock_init(void)
 {
+#if DT_NODE_EXISTS(DT_NODELABEL(hfxo))
 	uint32_t clock_latency_us = z_nrf_clock_bt_ctlr_hf_get_startup_time_us();
+#else
+	uint32_t clock_latency_us = 1400;
+#endif
 
 	nrf_802154_clock_hfclk_latency_set(clock_latency_us);
 }
